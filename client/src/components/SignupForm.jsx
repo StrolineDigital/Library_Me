@@ -1,16 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
-import { createUser } from '../utils/API';
+import { useMutation } from '@apollo/client';
+import { ADD_USER } from '../utils/queries';
 import Auth from '../utils/auth';
 
 const SignupForm = () => {
-  // set initial form state
   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
-  // set state for form validation
-  const [validated] = useState(false);
-  // set state for alert
+  const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [addUserMutation] = useMutation(ADD_USER);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -19,41 +17,51 @@ const SignupForm = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
-    // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
     }
+    setValidated(true);
 
     try {
-      const response = await createUser(userFormData);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token, user } = await response.json();
-      console.log(user);
+      const { data } = await addUserMutation({
+        variables: { userData: userFormData },
+      });
+    
+      const addedUser = data.addUser.user;
+      console.log('User added successfully:', addedUser);
+      const { token } = data.addUser;
       Auth.login(token);
-    } catch (err) {
-      console.error(err);
-      setShowAlert(true);
+    } catch (error) {
+      if (error.networkError) {
+        // Handle network errors (e.g., server unreachable)
+        console.error('Network error:', error.message);
+        setShowAlert(true);
+      } else if (error.graphQLErrors) {
+        // Handle GraphQL errors (e.g., validation errors)
+        error.graphQLErrors.forEach(({ message }) => {
+          console.error('GraphQL error:', message);
+          // Display specific error message to the user
+          if (message.includes('duplicate key error')) {
+            setShowAlert(true);
+          } else {
+            // Handle other GraphQL errors
+            setShowAlert(true);
+          }
+        });
+      } else {
+        // Handle other types of errors
+        console.error('Error:', error.message);
+        setShowAlert(true);
+      }
     }
-
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
-    });
+    setUserFormData({ username: '', email: '', password: '' });
   };
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
