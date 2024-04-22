@@ -1,10 +1,7 @@
-const { AuthenticationError } = require('apollo-server-errors');
-const { gql } = require('apollo-server-express');
-const jwt = require('jsonwebtoken');
 
-const secret = 'mysecretsshhhhh';
 
-const typeDefs = gql`
+
+const typeDefs = `
   type User {
     _id: ID
     username: String
@@ -39,3 +36,4 @@ const typeDefs = gql`
   }
 `;
 
+module.exports = typeDefs;

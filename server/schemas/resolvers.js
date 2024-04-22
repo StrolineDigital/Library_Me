@@ -1,4 +1,4 @@
-const { AuthenticationError } = require('apollo-server-errors');
+
 
 const resolvers = {
   Query: {
@@ -21,25 +21,25 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, { bookData }, context) => {
+    saveBook: async (parent, { authors, description, title, bookId, image, link }, context) => {
       try {
         if (context.user) {
           const updatedUser = await User.findOneAndUpdate(
             { _id: context.user._id },
-            { $addToSet: { savedBooks: bookData } },
+            { $addToSet: { savedBooks: { authors, description, title, bookId, image, link } } },
             { new: true }
           );
-
+  
           return updatedUser;
         }
-
+  
         throw new AuthenticationError('You need to be logged in!');
       } catch (error) {
         console.error('Error in saveBook resolver:', error);
         throw error; // Re-throw the error to be caught by Apollo Server
       }
     },
-
+  
     removeBook: async (parent, { bookId }, context) => {
       try {
         if (context.user) {
@@ -48,17 +48,17 @@ const resolvers = {
             { $pull: { savedBooks: { bookId } } },
             { new: true }
           );
-
+  
           return updatedUser;
         }
-
+  
         throw new AuthenticationError('You need to be logged in!');
       } catch (error) {
         console.error('Error in removeBook resolver:', error);
         throw error; // Re-throw the error to be caught by Apollo Server
       }
     },
-
+  
     login: async (parent, { email, password }) => {
       try {
         const user = await User.findOne({ email });
@@ -94,4 +94,4 @@ const resolvers = {
   },
 };
 
-module.exports = { typeDefs, resolvers };
+module.exports = { resolvers };
