@@ -1,5 +1,6 @@
 
-
+const User = require('../models/User');
+const {signToken} = require('../utils/auth');
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
@@ -94,4 +95,4 @@ const resolvers = {
   },
 };
 
-module.exports = { resolvers };
+module.exports =  resolvers;

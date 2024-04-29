@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState,useEffect } from 'react'; // Import React explicitly
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 import { useQuery, useMutation } from '@apollo/client';
 import { REMOVE_BOOK } from '../utils/mutations';
@@ -10,14 +10,11 @@ const SavedBooks = () => {
   const { loading, error, data } = useQuery(GET_ME);
   const [userData, setUserData] = useState({});
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error fetching user data!</p>;
-
-  if (data) {
-    setUserData(data.me);
-  }
-
-  const userDataLength = Object.keys(userData).length;
+  useEffect(() => {
+    if (data) {
+      setUserData(data.me);
+    }
+  }, [data]);
 
   const [removeBookMutation] = useMutation(REMOVE_BOOK);
 
@@ -45,18 +42,17 @@ const SavedBooks = () => {
     }
   };
 
-  if (!userDataLength) {
-    return <h2>Loading...</h2>;
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error fetching user data!</p>;
 
   return (
     <>
-      <div fluid className="text-light bg-dark p-5">
+      <div className="text-light bg-dark p-5"> {/* Removed 'fluid' */}
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
       </div>
-      <Container>
+      <Container fluid> {/* Added fluid property here */}
         <h2 className='pt-5'>
           {userData.savedBooks.length
             ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
