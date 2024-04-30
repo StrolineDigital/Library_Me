@@ -1,5 +1,5 @@
 
-
+//This typeDefs.js file will define the queries and mutations used in the application.
 
 const typeDefs = `
   type User {

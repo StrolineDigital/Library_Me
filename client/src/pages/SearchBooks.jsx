@@ -14,7 +14,7 @@ import { saveBookIds} from '../utils/localStorage';
 import { useMutation } from '@apollo/client';
 import { SAVE_BOOK } from '../utils/mutations';
 
-
+//The searchBooks component is used to search for books using the Google Books API and a graphql mutation to save the book to the database
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
@@ -48,7 +48,7 @@ const SearchBooks = () => {
       const bookData = items.map((book) => {
         // Check if volumeInfo and authors exist before accessing them
         const authors = book.volumeInfo && book.volumeInfo.authors ? book.volumeInfo.authors : ['No author to display'];
-      
+      //This returs the book data
         return {
           bookId: book.id,
           authors: Array.isArray(authors) ? authors : [authors], // Convert authors to array if it's not already
@@ -66,7 +66,7 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
+//This function is used to save the book to the database
   const handleSaveBook = async (bookData) => {
     console.log ('handling saved book')
     console.log(bookData);
@@ -86,7 +86,7 @@ const SearchBooks = () => {
       image: image?.thumbnail || '',
     };
       console.log(bookToSave);
-  
+  //This block of code checks to see if the user is logged in and if they are it saves the book to the database
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {

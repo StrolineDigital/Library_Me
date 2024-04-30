@@ -1,5 +1,5 @@
 
-
+//This resolver file is used to define the query and mutation functionality for the server
 const User = require('../models/User');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } = require('apollo-server-express');

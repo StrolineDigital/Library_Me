@@ -1,3 +1,4 @@
+//This block of imports is used to import the necessary dependencies for this file to make it modified to work with graphql
 import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
@@ -25,7 +26,7 @@ const LoginForm = () => {
       event.stopPropagation();
     }
     setValidated(true);
-
+//This block of code is used to login the user and store the token in the local storage
     try {
       const { data } = await loginUserMutation({
         variables: { email: userFormData.email, password: userFormData.password },

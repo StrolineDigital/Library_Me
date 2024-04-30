@@ -6,6 +6,7 @@ import { GET_ME } from '../utils/queries';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
+//This code has been modified to use the useQuery and useMutation hooks to interact with the GraphQL server
 const SavedBooks = () => {
   const { loading, error, data } = useQuery(GET_ME);
   const [userData, setUserData] = useState({});

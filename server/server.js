@@ -1,3 +1,5 @@
+//This file has been modified to use the gql tag from the @apollo/client package to define the queries 
+//and mutations used in the application.
 const express = require('express');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');

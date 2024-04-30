@@ -1,5 +1,5 @@
 import {gql} from '@apollo/client';
-
+//These mutations are used to specify the data that will be sent to the server
 export const LOGIN_USER = gql`
 mutation login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
