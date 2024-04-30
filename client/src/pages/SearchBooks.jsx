@@ -14,13 +14,14 @@ import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { useMutation } from '@apollo/client';
 import { SAVE_BOOK } from '../utils/mutations';
 
+
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
   // create state for holding our search field data
   const [searchInput, setSearchInput] = useState('');
   // create state to hold saved bookId values
-  const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
+  const [savedBookIds, setSavedBookIds] = useState([]);
 
   const [saveBookMutation] = useMutation(SAVE_BOOK);
 
@@ -51,7 +52,8 @@ const SearchBooks = () => {
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || '',
       }));
-
+      
+      setSavedBookIds(bookData);
       setSearchedBooks(bookData);
       setSearchInput('');
     } catch (err) {
@@ -60,22 +62,26 @@ const SearchBooks = () => {
   };
 
   const handleSaveBook = async (bookData) => {
-    if (!bookData || !bookData.authors) {
+    console.log ('handling saved book')
+    console.log(bookData);
+    if (!bookData) {
       console.error('Invalid book data:', bookData);
       return;
     }
   
-    const { id, authors, description, title, imageLinks } = bookData;
-  
+    const { bookId, authors, description, title, image } = bookData;
+      console.log('this is bookId', bookId);
     // Provide a default value for authors if it's undefined
     const bookToSave = {
-      bookId: id,
+      bookId: bookId, // Assigning the value of bookId
       authors: authors ? authors : ['No author to display'],
       description: description || '',
       title: title || '',
-      image: imageLinks?.thumbnail || '',
+      image: image?.thumbnail || '',
     };
-  console.log(bookToSave);
+  console.log(image?.thumbnail)
+    console.log(bookToSave);
+  
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
@@ -83,12 +89,15 @@ const SearchBooks = () => {
     }
   
     try {
+      
       const { data } = await saveBookMutation({
-        variables: { input: bookToSave },
+        variables: { 
+           authors, description, title, bookId, image 
+        }
       });
-  
-     const savedBookId = data.bookId;
-  
+      console.log(data);
+      const savedBookId = bookId;
+
       setSavedBookIds([...savedBookIds, savedBookId]);
       console.log('Book saved successfully!');
     } catch (error) {
