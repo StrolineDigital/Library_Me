@@ -34,7 +34,7 @@ const resolvers = {
           return updatedUser;
         }
   
-        throw new AuthenticationError('You need to be logged in!');
+        //throw new AuthenticationError('You need to be logged in!');
       } catch (error) {
         console.error('Error in saveBook resolver:', error);
         throw error; // Re-throw the error to be caught by Apollo Server

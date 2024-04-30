@@ -60,12 +60,12 @@ const SearchBooks = () => {
   };
 
   const handleSaveBook = async (bookData) => {
-    if (!bookData || !bookData.volumeInfo || !bookData.volumeInfo.authors) {
+    if (!bookData || !bookData.authors) {
       console.error('Invalid book data:', bookData);
       return;
     }
   
-    const { id, volumeInfo: { authors, description, title, imageLinks } } = bookData;
+    const { id, authors, description, title, imageLinks } = bookData;
   
     // Provide a default value for authors if it's undefined
     const bookToSave = {
@@ -75,7 +75,7 @@ const SearchBooks = () => {
       title: title || '',
       image: imageLinks?.thumbnail || '',
     };
-  
+  console.log(bookToSave);
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
@@ -87,7 +87,7 @@ const SearchBooks = () => {
         variables: { input: bookToSave },
       });
   
-      const savedBookId = data.saveBook.id;
+     const savedBookId = data.bookId;
   
       setSavedBookIds([...savedBookIds, savedBookId]);
       console.log('Book saved successfully!');
