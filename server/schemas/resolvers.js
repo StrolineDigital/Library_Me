@@ -16,9 +16,9 @@ const resolvers = {
             .populate('savedBooks');
 
           return userData;
-          console.log(User)
+          
         }
-
+console.log(context.user);
         throw new AuthenticationError('Not logged in');
       } catch (error) {
         console.error('Error in me resolver:', error);
@@ -28,7 +28,7 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, { authors, description, title, bookId, image }, context) => {
+    saveBook: async (parent, { authors, description, title, bookId, image },context ) => {
       try {
         // Ensure user is authenticated
         if (!context.user) {

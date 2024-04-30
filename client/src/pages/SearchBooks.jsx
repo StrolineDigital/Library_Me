@@ -108,9 +108,10 @@ const SearchBooks = () => {
       });
       
       console.log(data);
-      const savedBookId = bookId;
+     
 
-      setSavedBookIds([...savedBookIds, savedBookId]);
+      setSavedBookIds(bookData);
+      console.log(bookId);
       console.log('Book saved successfully!');
     } catch (error) {
       console.error(error);
