@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { LOGIN_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
+
 
 const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
@@ -30,8 +31,8 @@ const LoginForm = () => {
         variables: { email: userFormData.email, password: userFormData.password },
       });
 
-      const { token, user } = data.login;
-      console.log(user);
+      const token = data.login.token;
+      
       Auth.login(token);
     } catch (error) {
       console.error('Error logging in:', error);

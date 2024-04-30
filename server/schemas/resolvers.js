@@ -1,4 +1,5 @@
 
+
 const User = require('../models/User');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } = require('apollo-server-express');
@@ -6,6 +7,8 @@ const { AuthenticationError } = require('apollo-server-express');
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
+      console.log(context);
+      console.log(context.user);
       try {
         if (context.user) {
           const userData = await User.findOne({ _id: context.user._id })

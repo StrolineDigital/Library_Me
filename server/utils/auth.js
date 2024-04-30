@@ -1,39 +1,45 @@
 const jwt = require('jsonwebtoken');
 
-// set token secret and expiration date
 const secret = 'mysecretsshhhhh';
 const expiration = '2h';
 
 module.exports = {
-  // function for our authenticated routes
   authMiddleware: function (req, res, next) {
-    // allows token to be sent via  req.query or headers
-    let token = req.query.token || req.headers.authorization;
+    let token;
 
-    // ["Bearer", "<tokenvalue>"]
-    if (req.headers.authorization) {
-      token = token.split(' ').pop().trim();
+    // Check if the token is in the headers
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      // Extract the token from the Authorization header
+      token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies && req.cookies.token) {
+      // Check if the token is in a cookie
+      token = req.cookies.token;
+    } else if (req.query.token) {
+      // Check if the token is in the query parameters
+      token = req.query.token;
     }
 
     if (!token) {
-      return res.status(400).json({ message: 'You have no token!' });
+      return res.status(401).json({ message: 'Unauthorized: No token provided' });
     }
 
-    // verify token and get user data out of it
     try {
-      const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      req.user = data;
-    } catch {
-      console.log('Invalid token');
-      return res.status(400).json({ message: 'invalid token!' });
-    }
+      // Verify the token and extract user data
+      const decoded = jwt.verify(token, secret);
+      req.user = decoded.data;
 
-    // send to next endpoint
-    next();
+      // Log the decoded token data (user data)
+      console.log('Decoded token data:', req.user);
+
+      next();
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+    }
   },
+
   signToken: function ({ username, email, _id }) {
     const payload = { username, email, _id };
-
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
 };
