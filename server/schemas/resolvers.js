@@ -1,6 +1,8 @@
 
 const User = require('../models/User');
-const {signToken} = require('../utils/auth');
+const { signToken } = require('../utils/auth');
+const { AuthenticationError } = require('apollo-server-express');
+
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
@@ -11,6 +13,7 @@ const resolvers = {
             .populate('savedBooks');
 
           return userData;
+          console.log(User)
         }
 
         throw new AuthenticationError('Not logged in');
@@ -22,26 +25,40 @@ const resolvers = {
   },
 
   Mutation: {
-    saveBook: async (parent, { authors, description, title, bookId, image, link }, context) => {
+    saveBook: async (parent, { authors, description, title, bookId, image }, context) => {
       try {
-        if (context.user) {
-          const updatedUser = await User.findOneAndUpdate(
-            { _id: context.user._id },
-            { $addToSet: { savedBooks: { authors, description, title, bookId, image, link } } },
-            { new: true }
-          );
-  
-          return updatedUser;
+        // Ensure user is authenticated
+        if (!context.user) {
+          throw new AuthenticationError('You need to be logged in to save a book');
         }
-  
-        //throw new AuthenticationError('You need to be logged in!');
+    
+        // Validate input data (if necessary)
+        if (!authors || !description || !title || !bookId || !image) {
+          throw new Error('Missing required input fields');
+        }
+    
+        // Convert authors to an array if it's not already
+        const authorsArray = Array.isArray(authors) ? authors : [authors];
+    
+        // Update the user document in the database
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { saveBook: { authors: authorsArray, description, title, bookId, image } } },
+          { new: true }
+        );
+    
+        if (!updatedUser) {
+          throw new Error('Failed to save book');
+        }
+    
+        return updatedUser;
       } catch (error) {
         console.error('Error in saveBook resolver:', error);
         throw error; // Re-throw the error to be caught by Apollo Server
       }
     },
-  
-    removeBook: async (parent, { bookId }, context) => {
+
+    removeBook: async ( { bookId }, context) => {
       try {
         if (context.user) {
           const updatedUser = await User.findOneAndUpdate(
@@ -49,17 +66,17 @@ const resolvers = {
             { $pull: { savedBooks: { bookId } } },
             { new: true }
           );
-  
+
           return updatedUser;
         }
-  
+
         throw new AuthenticationError('You need to be logged in!');
       } catch (error) {
         console.error('Error in removeBook resolver:', error);
         throw error; // Re-throw the error to be caught by Apollo Server
       }
     },
-  
+
     login: async (parent, { email, password }) => {
       try {
         const user = await User.findOne({ email });
@@ -95,4 +112,4 @@ const resolvers = {
   },
 };
 
-module.exports =  resolvers;
+module.exports = resolvers;

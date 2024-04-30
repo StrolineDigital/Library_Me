@@ -10,7 +10,7 @@ import {
 
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+import { saveBookIds} from '../utils/localStorage';
 import { useMutation } from '@apollo/client';
 import { SAVE_BOOK } from '../utils/mutations';
 
@@ -45,13 +45,19 @@ const SearchBooks = () => {
 
       const { items } = await response.json();
 
-      const bookData = items.map((book) => ({
-        bookId: book.id,
-        authors: book.volumeInfo.authors || ['No author to display'],
-        title: book.volumeInfo.title,
-        description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
-      }));
+      const bookData = items.map((book) => {
+        // Check if volumeInfo and authors exist before accessing them
+        const authors = book.volumeInfo && book.volumeInfo.authors ? book.volumeInfo.authors : ['No author to display'];
+      
+        return {
+          bookId: book.id,
+          authors: Array.isArray(authors) ? authors : [authors], // Convert authors to array if it's not already
+          title: book.volumeInfo ? book.volumeInfo.title : 'No title available',
+          description: book.volumeInfo ? book.volumeInfo.description : 'No description available',
+          image: book.volumeInfo && book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail || '' : '',
+        };
+      });
+      
       
       setSavedBookIds(bookData);
       setSearchedBooks(bookData);
@@ -79,22 +85,28 @@ const SearchBooks = () => {
       title: title || '',
       image: image?.thumbnail || '',
     };
-  console.log(image?.thumbnail)
-    console.log(bookToSave);
+      console.log(bookToSave);
   
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
       return false;
     }
+
+    console.log(token)
   
     try {
       
-      const { data } = await saveBookMutation({
+      const {data } = await saveBookMutation({
         variables: { 
-           authors, description, title, bookId, image 
+          authors: authors,
+          description: description,
+          title: title,
+          bookId: bookId,
+          image: image 
         }
       });
+      
       console.log(data);
       const savedBookId = bookId;
 
