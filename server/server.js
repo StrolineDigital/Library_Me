@@ -26,18 +26,15 @@ const startApolloServer = async () => {
 
     if (process.env.NODE_ENV === 'production') {
       app.use(express.static(path.join(__dirname, '../client/dist')));
-
       app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, '../client/dist/index.html'));
       });
     }
 
-    
-
     db.once('open', () => {
-      app.listen(PORT, () => {
+      app.listen(PORT, '0.0.0.0', () => {
         console.log(`API server running on port ${PORT}!`);
-        console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
+        console.log(`Use GraphQL at http://0.0.0.0:${PORT}/graphql`);
       });
     });
 
